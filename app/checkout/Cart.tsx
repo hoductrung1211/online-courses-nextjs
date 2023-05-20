@@ -8,7 +8,7 @@ export default function Cart({
     courses: Course[]
 }) {
     return (
-        <div className='hidden min-[1200px]:block col-span-3'>
+        <div className='hidden lg:block col-span-3'>
             <Section title="Cart" >
                 <ul className="w-full flex flex-col gap-3 ">
                     {courses.map(course => (

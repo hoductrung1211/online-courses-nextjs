@@ -10,7 +10,7 @@ export default function EditingProducts({
     handleDeleteACourse: (courseId: number) => void,
 }) {
     return (
-        <div className='md:col-span-6 min-[1200px]:col-span-5'>
+        <div className='md:col-span-6 lg:col-span-5'>
             <Section title="Editing Products">
                 <p className='w-full text-end'>
                     You have <span className="font-bold">{courses.length}</span> course in the course

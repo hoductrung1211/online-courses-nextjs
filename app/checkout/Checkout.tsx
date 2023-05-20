@@ -1,21 +1,63 @@
+'use client';
 
 import Section from './Section';
 import toVnd from '../../utils/toVnd';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
+import { paymentMethodAssets } from './page';
 
 export default function Checkout({
-    subtotal
+    subtotal,
+    handleCheckout,
 }: {
-    subtotal: number
-}) {
+    subtotal: number,
+    handleCheckout: (id: number, total: number) => void,
+}) { 
+    const [vouchers, setVouchers] = useState({
+        invitingCode: '',
+        discountCode: '',
+        bsmartCoint: '0', 
+    })
+    const bspoint = 200_000;
+    const options = [
+        {value: "false", text: 'Do not use Bsmart'},
+        {value: "true", text: 'Use Bsmart'},
+    ];
+    const [isCoinUsed, setIsCoinUsed] = useState(options[0].value);
+    const discount = (vouchers.bsmartCoint === '' ? 0 : parseInt(vouchers.bsmartCoint));
+
+    function handleChangeValue(name: string, value: string) {
+        setVouchers({
+            ...vouchers,
+            [name]: value,
+        })
+    }
+
+    function handleSelectChanged(e: ChangeEvent<HTMLSelectElement>) {
+        setIsCoinUsed(e.target.value);
+        if (e.target.value === 'false')
+            setVouchers({
+                ...vouchers,
+                bsmartCoint: '0',
+            }) 
+    }
     return (
-        <div className='md:col-span-6 min-[1200px]:col-span-4'>
+        <div className='md:col-span-6 lg:col-span-4'>
             <Section title="Checkout">
                 <div className='flex flex-col gap-4'>
                     <CustomerInformation />
-                    <Voucher />
-                    <Payment subtotal={subtotal} discount={200000} />
-                    <PaymentMethod />
+                    <Voucher  
+                        vouchers={vouchers}
+                        bspoint={bspoint}
+                        options={options}
+                        isCoinUsed={isCoinUsed}
+                        handleChangeValue={handleChangeValue}
+                        handleSelectChanged={handleSelectChanged}
+                    />
+                    <Payment subtotal={subtotal} discount={discount} />
+                    <PaymentMethod
+                        handleCheckout={handleCheckout}
+                        total={subtotal - discount}
+                    />
                 </div>
             </Section>
         </div>
@@ -51,18 +93,27 @@ function Field({
 }) {
     return (
         <li className='w-full flex items-center justify-between'>
-            <span className='shrink-0 w-full max-w-[8rem]'>{text}</span>
+            <span className='shrink-0 w-full max-w-[7rem]'>{text}</span>
             {children}
         </li>
     )
 }
 
 function Input({
-
+    disabled = false,
+    value,
+    handleChangeValue,
+}: {
+    disabled?: boolean,
+    value: string,
+    handleChangeValue: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
     return (
         <input 
-            className='w-full min-w-[3rem]  h-7 bg-f4 rounded'
+            className={'w-full min-w-[3rem] h-7 rounded ' + (disabled ? 'bg-black bg-opacity-20' : 'bg-f4')}
+            value={value}
+            disabled={disabled}
+            onChange={handleChangeValue}
         />
     )
 }
@@ -101,30 +152,59 @@ function CustomerInformation({
 }
 
 function Voucher({
-
+    vouchers,
+    bspoint,
+    options,
+    isCoinUsed,
+    handleChangeValue,
+    handleSelectChanged,
+}: {
+    vouchers: {[key: string]: string},
+    bspoint: number,
+    options: {value: string, text: string}[],
+    isCoinUsed: string,
+    handleChangeValue: (name: string, value: string) => void,
+    handleSelectChanged: (e: ChangeEvent<HTMLSelectElement>) => void
 }) {
-    const bspoint = 200000;
-    const options = [
-        {id: 0, text: 'Do not use Bsmart'},
-        {id: 1, text: 'Use Bsmart'},
-    ];
-
-
-
+  
     return (
         <SubSection title='Voucher'>
             <Field text='Inviting code:'>
-                <Input />
+                <Input
+                    value={vouchers.invitingCode} 
+                    handleChangeValue={e => handleChangeValue('invitingCode', e.target.value)}
+                />
             </Field>
             <Field text='Discount code:'>
-                <Input />
+                <Input
+                    value={vouchers.discountCode} 
+                    handleChangeValue={e => handleChangeValue('discountCode', e.target.value)}
+                />
             </Field>
             <Field text='Use Bsmart Coin:'>
-                <div className='w-full flex gap-1'>
-                    <Input />
-                    <select className='bg-f4 rounded px-2'>
+                <div className='w-full overflow-hidden flex gap-1'>
+                    <Input 
+                        disabled={isCoinUsed === "false"}
+                        value={vouchers.bsmartCoint} 
+                        handleChangeValue={e => {
+                            const inputPoint = e.target.value;
+
+                            if ((parseInt(inputPoint) <= bspoint) || inputPoint === '')
+                                handleChangeValue('bsmartCoint', inputPoint);
+                        }}
+                    />
+                    <select 
+                        className='bg-f4 rounded px-2'
+                        onChange={handleSelectChanged}
+                    >
                         {options.map(option => (
-                            <option className='text-center' key={option.id}>{option.text}</option>
+                            <option 
+                                className='text-center' 
+                                key={option.value}
+                                value={option.value}
+                            >
+                                {option.text}
+                            </option>
                         ))}
                     </select>
                 </div>
@@ -161,32 +241,35 @@ function Payment({
     )
 }
 
-const paymentMethods = [
-    {id: 0, name: 'Momo', src: 'momo-logo.png'},
-    {id: 1, name: 'VNpay', src: 'vnpay-logo.png'},
-    {id: 2, name: 'Zalopay', src: 'zalopay-logo.webp'},
-]
+ 
 
 function PaymentMethod({
-
+    handleCheckout,
+    total
+}: {
+    handleCheckout: (id: number, total: number) => void,
+    total: number
 }) {
-    const [selectedMethodId, setSelectedMethodId] = useState(paymentMethods[0].id);
+    const [selectedMethodId, setSelectedMethodId] = useState(paymentMethodAssets[0].id);
 
     return (
         <SubSection title='Payment Method'>
             <div className='mt-6 flex justify-center items-center gap-8'>
-            {paymentMethods.map(method => (
+            {paymentMethodAssets.map(method => (
                 <button 
                     key={method.id}
                     className={`flex w-16 p-1 aspect-square xs:w-20 rounded-xl  border-gray-300 ${selectedMethodId === method.id && 'border-2'}`}
                     onClick={() => setSelectedMethodId(method.id)}
                 > 
-                    <img src={method.src} />
+                    <img src={method.logo} />
                 </button>
             ))}
             </div>
 
-            <button className='mt-8 mb-2 h-10 rounded-lg bg-blue-400 font-bold text-white'>
+            <button 
+                className='mt-8 mb-2 h-10 rounded-lg bg-blue-400 font-bold text-white'
+                onClick={() => handleCheckout(selectedMethodId, total)}
+            >
                 Confirm
             </button>
         </SubSection>
