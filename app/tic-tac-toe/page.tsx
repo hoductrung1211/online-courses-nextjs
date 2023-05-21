@@ -7,6 +7,7 @@ import Header from "./Header";
 import PopupWrapper from "./PopupWrapper";
 import SettingsPopup, { SettingsForm } from "./SettingsPopup";
 import './style.css';
+import ManageBoard from "./ManageBoard";
 
 export const enum Role {
     O = 'O',
@@ -35,8 +36,7 @@ export const nList = [
     {id: 3, mark: "5 x 5", n: 5},
 ]
 
-
-export default function App() {
+export default function App() { 
     // States of Application
     const [settings, setSettings] = useState({
         playerOName: 'Player O',
@@ -170,14 +170,13 @@ export default function App() {
                 steps={steps}
                 winCells={winCells}
                 handleClick={handlePlayerClick}
+            /> 
+            <ManageBoard
+                gameType={nList.find(item => item.id === settings.nId)?.mark ?? "3 x 3"}
+                playerOName={settings.playerOName}
+                playerXName={settings.playerXName}
+                handleResetBoard={handleResetBoard}
             />
-            <section className="">
-                <button 
-                    onClick={handleResetBoard}
-                >
-                    New game
-                </button>
-            </section>
         </>
     )
 }

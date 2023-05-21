@@ -55,7 +55,7 @@ export function SettingsForm({
     }
 
     return (
-        <form className="flex flex-col gap-5">
+        <form className="flex flex-col gap-5 font-mono">
             <Field text="Player O name:">
                 <Input 
                     value={changedSetttings.playerOName}
@@ -105,7 +105,7 @@ export function SettingsForm({
     )
 }
 
-function Field({
+export function Field({
     text,
     children
 }: {
@@ -113,7 +113,7 @@ function Field({
     children: React.ReactNode,
 }) {
     return (
-        <label className="flex flex-col min-[480px]:flex-row items-center justify-between text-sm font-mono">
+        <label className="flex flex-col min-[480px]:flex-row items-center justify-between text-sm">
             <span className="">{text}</span>
             {children}
         </label>
