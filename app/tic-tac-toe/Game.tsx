@@ -17,10 +17,22 @@ export default function Game({
     winCells: number[],
     handleClick: (id: number, role: Role) => void,
 }) {
-    
+    let ulClassName = `w-full h-full grid border-2 `;
+    let maxWidth = 'max-w-[24rem]';
+    if (n == '3') {
+        ulClassName += ' grid-cols-3  grid-rows-3';
+    } else if (n == '4') {
+        ulClassName += ' grid-cols-4  grid-rows-4';
+        maxWidth = 'max-w-[28rem]'
+    }
+    else if (n == '5') {
+        ulClassName += ' grid-cols-5  grid-rows-5';
+        maxWidth = 'max-w-[36rem]'
+    }
+
     return (
-        <main className="w-full max-w-[24rem] aspect-square p-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">
-            <ul className={`w-full h-full grid grid-cols-${n} grid-rows-${n} border-2`}>
+        <main className={"w-full aspect-square p-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 " + maxWidth}>
+            <ul className={ulClassName}>
             {
                 steps.map(item => 
                     <Cell 
@@ -55,7 +67,7 @@ function Cell({
             className="grid place-items-center"
         >
             <button 
-                className={"w-full h-full border-2 text-3xl active:bg-gray-50 " + (isWinCell && "bg-green-300 ")}
+                className={"w-full h-full border-2 text-4xl " + (isWinCell && "bg-green-200 ")}
                 onClick={() => {
                     if (isActive) return;
 

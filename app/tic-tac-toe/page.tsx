@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Game from "./Game";
 import {winningColumns, winningCrossDown, winningCrossUp, winningRows, generateEmptyCells} from './utils';
 import Header from "./Header";
@@ -13,7 +13,7 @@ export const enum Role {
     X = 'X'
 }  
 
-const markOList = [
+export const markOList = [
     {id: 1, mark: '🌠'},
     {id: 2, mark: '💛'},
     {id: 3, mark: '🌕'},
@@ -21,29 +21,37 @@ const markOList = [
     {id: 5, mark: '⭐'},
     {id: 6, mark: '🌟'},
 ];
-
-const markXList = [
+export const markXList = [
     {id: 1, mark: '❤️'},
     {id: 2, mark: '💖'},
     {id: 3, mark: '🔴'},
-    {id: 4, mark: '⭕'},
+    {id: 4, mark: '🟥'},
     {id: 5, mark: '❌'},
-    {id: 6, mark: '🟥'},
+    {id: 6, mark: '⭕'},
 ]
+export const nList = [
+    {id: 1, mark: "3 x 3", n: 3},
+    {id: 2, mark: "4 x 4", n: 4},
+    {id: 3, mark: "5 x 5", n: 5},
+]
+
 
 export default function App() {
     // States of Application
-    const [n, setN] = useState(3);
-    const [count, setCount] = useState(0);
-    const [steps, setSteps] = useState(generateEmptyCells(n));
-    const [playerTurn, setPlayerTurn] = useState(Role.O);
-    const [popup, setPopup] = useState<React.ReactNode | null>(null);
     const [settings, setSettings] = useState({
         playerOName: 'Player O',
         playerXName: 'Player X',
         playerOMarkId: 5,
-        playerXMarkId: 5, 
+        playerXMarkId: 5,
+        nId: 1,
     });
+    const [count, setCount] = useState(0);
+
+    const n = nList.find(item => item.id === settings.nId)?.n ?? 3;
+    const [steps, setSteps] = useState(generateEmptyCells(n));
+    const [playerTurn, setPlayerTurn] = useState(Role.O);
+    const [popup, setPopup] = useState<React.ReactNode | null>(null);
+    
     const markO = markOList.find(item => item.id === settings.playerOMarkId)?.mark ?? '⭐';
     const markX = markXList.find(item => item.id === settings.playerXMarkId)?.mark ?? '❌';
 
@@ -55,7 +63,7 @@ export default function App() {
     const [winCells, setWinCells] = useState<number[]>([]); 
     const isGameOver: boolean = winCells.length != 0;
     const mark = !isGameOver ? (playerTurn == Role.O ? markO : markX) : '';
-
+ 
     function checkGameResult(role: Role, nextSteps: {id: number, role: null | Role}[]) {
         // 1. Taking some possible steps have n elements (n in nxn game)
         const emptyArr: number[] = [];
@@ -116,9 +124,36 @@ export default function App() {
             >
                 <SettingsForm 
                     settings={settings}
+                    handleUpdatingSettings={(nextNettings: 
+                        {
+                            playerOName: string,
+                            playerXName: string,
+                            playerOMarkId: number,
+                            playerXMarkId: number,
+                            nId: number,
+                        }) => {
+                            setSettings(nextNettings);
+                            if (nextNettings.nId !== settings.nId) {
+                                handleResetBoard()
+                                const n = nList.find(item => item.id === nextNettings.nId)?.n ?? 3;
+                                setSteps(generateEmptyCells(n));
+                                setWRows(winningRows(n));
+                                setWColumns(winningColumns(n));
+                                setWCross([winningCrossDown(n), winningCrossUp(n)]); 
+                            }
+                            setPopup(null);
+                    }}
                 />
             </SettingsPopup>
         );
+    }
+
+    function handleResetBoard() {
+        // Because count is the key of <Game> component
+        // count changed -> <Game> component's state is reset
+        setCount(count + 1); 
+        setSteps(generateEmptyCells(n));
+        setWinCells([]);
     }
 
     return (
@@ -138,13 +173,7 @@ export default function App() {
             />
             <section className="">
                 <button 
-                    onClick={() => {
-                        // Because count is the key of <Game> component
-                        // count changed -> <Game> component's state is reset
-                        setCount(count + 1); 
-                        setSteps(generateEmptyCells(n));
-                        setWinCells([]);
-                    }}
+                    onClick={handleResetBoard}
                 >
                     New game
                 </button>

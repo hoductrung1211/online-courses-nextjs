@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import {markOList, markXList, nList} from './page';
+
 export default function SettingsPopup({
     handleTurnOffPopup,
     children,
@@ -7,7 +10,7 @@ export default function SettingsPopup({
 }) {
     return (
         <section 
-            className="w-full max-w-[28rem] max-h-[48rem] flex flex-col bg-gray-50 rounded-lg overflow-hidden"
+            className="mx-2 w-full max-w-[28rem] max-h-[48rem] flex flex-col bg-gray-50 rounded-lg text-sm overflow-hidden"
             onClick={(e) => {
                 e.stopPropagation();                
             }}
@@ -18,7 +21,7 @@ export default function SettingsPopup({
                     onClick={handleTurnOffPopup}
                 >✖️</button>
             </header>
-            <main className="h-full py-3 px-5">
+            <main className="h-full p-5">
                 {children}
             </main>
         </section>
@@ -27,36 +30,75 @@ export default function SettingsPopup({
 
 export function SettingsForm({
     settings,
+    handleUpdatingSettings
 }: {
-    settings: {[key: string]: number | string},
+    settings: {
+        playerOName: string,
+        playerXName: string,
+        playerOMarkId: number,
+        playerXMarkId: number,
+        nId: number,
+    },
+    handleUpdatingSettings: (settings: {playerOName: string,
+        playerXName: string,
+        playerOMarkId: number,
+        playerXMarkId: number,
+        nId: number,}) => void,
 }) {
+    const [changedSetttings, setChangedSettings] = useState(settings);
+
+    function handleChange(key: string, value: number | string) {
+        setChangedSettings({
+            ...changedSetttings,
+            [key]: value,
+        })
+    }
+
     return (
         <form className="flex flex-col gap-5">
-            <Field text="Player A name:">
-                <Input />
+            <Field text="Player O name:">
+                <Input 
+                    value={changedSetttings.playerOName}
+                    handleChangeInput={value => handleChange("playerOName", value)}
+                />
             </Field>
-            <Field text="Player B name:">
-                <Input />
+            <Field text="Player X name:">
+                <Input
+                    value={changedSetttings.playerXName}
+                    handleChangeInput={value => handleChange("playerXName", value)}
+                />
             </Field>
-            <Field text="Player A mark:">
+            <Field text="Player O mark:">
                 <ListSelection 
-                    list={['🌠','💛','🌕','🟨','⭐','🌟']} 
+                    list={markOList}
+                    seletectedId={changedSetttings.playerOMarkId}
+                    handleChangeSelection={value => handleChange("playerOMarkId", value)}
                     type="icon"
                 />
             </Field>
-            <Field text="Player B mark:">
+            <Field text="Player X mark:">
                 <ListSelection 
-                    list={['❤️','💖','🔴','⭕','❌','🟥']}
+                    list={markXList}
+                    seletectedId={changedSetttings.playerXMarkId}
+                    handleChangeSelection={value => handleChange("playerXMarkId", value)}
                     type="icon"
                 />
             </Field>
             <Field text="Game type:">
                 <ListSelection 
-                    list={['3 x 3', '4 x 4', '5 x 5']}
+                    list={nList}
+                    seletectedId={changedSetttings.nId}
+                    handleChangeSelection={value => handleChange("nId", value)}
                     type="text"
                 />
             </Field>
-            <button className="mt-2 h-10 font-semibold text-white bg-blue-400 rounded-md hover:bg-opacity-90 transition">
+            <button 
+                className="mt-5 h-10 font-semibold text-white bg-blue-400 rounded-md hover:bg-opacity-90 transition"
+                onClick={(e) => {
+                    e.preventDefault();
+                    handleUpdatingSettings(changedSetttings);
+                }}
+            >
                 Save
             </button>
         </form>
@@ -71,7 +113,7 @@ function Field({
     children: React.ReactNode,
 }) {
     return (
-        <label className="flex flex-col min-[480px]:flex-row items-center justify-between">
+        <label className="flex flex-col min-[480px]:flex-row items-center justify-between text-sm font-mono">
             <span className="">{text}</span>
             {children}
         </label>
@@ -79,11 +121,17 @@ function Field({
 }
 
 function Input({
-     
+    value,
+    handleChangeInput,
+}: {
+    value: string,
+    handleChangeInput: (value: string) => void,
 }) {
     return (
         <input 
-            className="h-8 rounded-md"
+            className="min-w-[16rem] h-8 rounded-md"
+            value={value}
+            onChange={e => handleChangeInput(e.target.value)}
         />
     )
 }
@@ -91,24 +139,32 @@ function Input({
 function ListSelection({
     list,
     type,
+    seletectedId,
+    handleChangeSelection
 }: {
-    list: string[],
-    type: 'icon' | 'text'
+    list: {id: number, mark: string}[],
+    type: 'icon' | 'text',
+    seletectedId: number,
+    handleChangeSelection: (value: number) => void,
 }) {
     
-    let itemClassName = "h-8 grid place-items-center rounded-sm cursor-pointer hover:bg-gray-200 ";
+    let itemClassName = "h-8 grid place-items-center rounded-sm cursor-pointer ";
     if (type == "icon")
         itemClassName += " w-8 text-2xl  ";
-    else itemClassName += " px-2"
+    else itemClassName += " px-2 "
+
 
     return (
         <ul className="flex items-center gap-3">
         {
-            list.map(mark => 
-                <li key={mark}
-                    className={itemClassName}
+            list.map(item => 
+                <li key={item.id}
+                    className={itemClassName + (item.id === seletectedId ? ' bg-blue-200' : ' hover:bg-gray-200 ')}
+                    onClick={() => {
+                        handleChangeSelection(item.id)
+                    }}
                 >
-                    {mark}
+                    {item.mark}
                 </li>
             )
         }
