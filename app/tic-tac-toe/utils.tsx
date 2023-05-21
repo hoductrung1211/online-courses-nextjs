@@ -1,12 +1,14 @@
+import { Role } from "./page";
 
-// Take all n elements in the array and returns array
-// if array's length is less than n, returns empty string
-export function takeAllNElements(n: number, [...arr]: number[]): number[][] {
-    const res: number[][] = [];
-    const length = arr.length;
-    
-    for (let i = 0; i <= length - n; i++) {
-        res.push(arr.slice(i, i + n))
+export function generateEmptyCells(n: number): {id: number, role: null | Role}[] {
+    const len = n * n;
+    const res = [];
+
+    for (let i = 1; i <= len; i++) {
+        res.push({
+            id: i,
+            role: null
+        })
     }
 
     return res;

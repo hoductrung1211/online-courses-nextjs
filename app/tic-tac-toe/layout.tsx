@@ -4,7 +4,7 @@ export default function Layout({
     children: React.ReactNode
 }) {
     return (
-        <div className="absolute inset-0">
+        <div className="relative w-full min-h-screen">
             {children}
         </div>
     )
