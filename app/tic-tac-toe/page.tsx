@@ -5,26 +5,22 @@ import Game from "./Game";
 import {takeAllNElements, winningColumns, winningCrossDown, winningCrossUp, winningRows} from './utils';
 
 export const enum Role {
-    O = '⭐',
-    X = '❌'
+    O = 'O',
+    X = 'X'
 }
 const initSteps: {id: number, role: null | Role}[] = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(item => ({
     id: item,
     role: null,
 }))
-
-console.log(winningRows(3));
-console.log(winningColumns(3));
-console.log([winningCrossDown(3), winningCrossUp(3)]);
+ 
 const intNumArr: number[] = []
 
-export default function App({
-
-}) {
-    const [count, setCount] = useState(0)
+export default function App() {
+    const [count, setCount] = useState(0);
     const [steps, setSteps] = useState(initSteps);
-    const [role, setRole] = useState(Role.O);
+    const [playerTurn, setPlayerTurn] = useState(Role.O);
 
+    // All possible steps that could win the game!
     const [wRows, setWRows] = useState(winningRows(3));
     const [wColumns, setWColumns] = useState(winningColumns(3));
     const [wCross, setWCross] = useState([winningCrossDown(3), winningCrossUp(3)]); 
@@ -32,13 +28,15 @@ export default function App({
     const [winCells, setWinCells] = useState(intNumArr); 
     const isGameOver: boolean = winCells.length != 0;
 
-    function check(role: Role, nextSteps: {id: number, role: null | Role}[]) {
+    function checkGameResult(role: Role, nextSteps: {id: number, role: null | Role}[]) {
+        // 1. Taking some possible steps have n elements (n in nxn game)
         const emptyArr: number[] = [];
         const playerCurrentSteps = nextSteps.reduce((res, step) => {
             return step.role === role ? [...res, step.id] : res;
         }, emptyArr);
         playerCurrentSteps.sort();
         
+        // 2. Checking steps is in possible winSteps 
         const allPossibleSteps = takeAllNElements(3, playerCurrentSteps);
         allPossibleSteps.forEach(arr => {
             wRows.forEach(rows => rows.toString() === arr.toString() && setWinCells(arr));
@@ -50,10 +48,10 @@ export default function App({
     function handlePlayerClick(id: number, role: Role) {
         if (!isGameOver) {
             const nextSteps = steps.map(step => {
-                setRole(role === Role.O ? Role.X : Role.O);
+                setPlayerTurn(role === Role.O ? Role.X : Role.O);
                 return (step.id === id) ? {id, role} : step;
             });
-            check(role, nextSteps);
+            checkGameResult(role, nextSteps);
             setSteps(nextSteps);
         }
     }
@@ -65,7 +63,7 @@ export default function App({
             </section>
             <Game 
                 key={count}
-                role={role}
+                playerTurn={playerTurn}
                 steps={steps}
                 winCells={winCells}
                 handleClick={handlePlayerClick}
@@ -73,14 +71,14 @@ export default function App({
             <section className="">
                 <button 
                     onClick={() => {
-                        // If reseting reset, state of <Game> component is still there
-                        // Reset <Game> component state
+                        // Because count is the key of <Game> component
+                        // count changed -> <Game> component's state is reset
                         setCount(count + 1); 
                         setSteps(initSteps);
                         setWinCells([]);
                     }}
                 >
-                    Reset
+                    New game
                 </button>
             </section>
         </>

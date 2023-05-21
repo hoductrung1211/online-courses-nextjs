@@ -1,14 +1,15 @@
 import { useState } from "react"
 import { Role } from "./page";
 
+// Just generating cells
 export default function Game({
     steps,
-    role,
+    playerTurn,
     winCells,
     handleClick
 }: {
     steps: {id: number, role: null | Role}[],
-    role: Role,
+    playerTurn: Role,
     winCells: number[],
     handleClick: (id: number, role: Role) => void,
 }) {
@@ -23,7 +24,7 @@ export default function Game({
                         value={item.role ?? ''}
                         isWinCell={winCells.includes(item.id)}
                         handleClick={() => {
-                            handleClick(item.id, role);
+                            handleClick(item.id, playerTurn);
                         }}
                     />
                 )
