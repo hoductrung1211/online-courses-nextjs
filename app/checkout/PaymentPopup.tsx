@@ -23,7 +23,7 @@ function useCounter() {
             setCount(count - 1);
         }, 1000);
 
-        return clearTimeout(countRef);
+        return () => clearTimeout(countRef);
     });
 
     return count;
@@ -80,7 +80,7 @@ export default function PaymentPopup({
     return ( 
         <main 
             key={methodAsset.id}
-            className="w-full h-full max-w-[480px] max-h-[750px] flex flex-col bg-white rounded-lg overflow-hidden"
+            className="w-full h-full max-w-[680px] max-h-[750px] sm:h-fit flex flex-col bg-white rounded-lg overflow-hidden"
             onClick={(e) => {
                 e.stopPropagation();
             }}
@@ -88,8 +88,8 @@ export default function PaymentPopup({
             <header className="w-full h-10 grid place-items-center bg-f4">
                 Payment QR
             </header>
-            <main className="relative h-full text-xs">
-                <section className={`relative w-full h-[24rem] ${methodAsset.color} text-white px-2`}>
+            <main className="relative h-full flex flex-col sm:flex-row text-xs">
+                <section className={`relative w-full h-[24rem] shrink-0 sm:w-1/2  ${methodAsset.color} text-white px-2`}>
                     <Image 
                         className="absolute top-12 left-1/2 -translate-x-1/2 w-[120px]"
                         width={120}
@@ -106,31 +106,42 @@ export default function PaymentPopup({
                             alt="QR code"
                         />
                     </div>
-                    <div className="absolute left-1/2 -translate-x-1/2 bottom-5 w-full text-center">
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-5 w-full px-2 text-center">
                         <p className="">Use App Momo or the camera supporting QR code to scan</p>
                         <p className="mt-3">
-                            Update automatically after {counter} seconds.
+                            Update automatically after <span className="font-bold">{counter}</span> seconds.
                             {' '}
                             <span className="font-bold cursor-pointer" onClick={resetQr}>Update</span>
                         </p>
                     </div>
                 </section>
-                <section className="p-3 flex flex-col gap-3">
-                    <p className="flex justify-between items-center">
-                        Payment method:
-                        <span className="font-bold">{methodAsset.name}</span>
-                    </p>
-                    <p className="flex justify-between items-center">
-                        Total: 
-                        <span className="font-bold">{toVnd(total)}</span>
-                    </p>
+
+                <section className="relative h-full w-full ">
+                    <div className="sm:h-[24rem] p-3 flex flex-col gap-3">
+                        <p className="flex justify-between items-center">
+                            Order ID:
+                            <span className="font-bold">1030120540642542</span>
+                        </p>
+                        <p className="flex justify-between items-center">
+                            Payment method:
+                            <span className="font-bold">{methodAsset.name}</span>
+                        </p>
+                        <p className="flex justify-between items-center">
+                            For more information:
+                            <span className="font-bold">check-out-order-103012</span>
+                        </p>
+                        <p className="flex justify-between items-center">
+                            Total: 
+                            <span className="font-bold">{toVnd(total)}</span>
+                        </p>
+                    </div>
+                    <button 
+                        className="absolute bottom-0 mt-auto bg-f4 w-full h-12 text-sm font-bold"
+                        onClick={handleTurnOffPopup}
+                    >
+                        Cancel
+                    </button>
                 </section>
-                <button 
-                    className="absolute bottom-0 mt-auto bg-f4 w-full h-12 text-sm font-bold"
-                    onClick={handleTurnOffPopup}
-                >
-                    Cancel
-                </button>
             </main>
         </main>
     )

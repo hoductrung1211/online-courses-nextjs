@@ -15,7 +15,7 @@ export default function SettingsPopup({
                 e.stopPropagation();                
             }}
         >
-            <header className="w-full h-12 px-3 flex items-center justify-between font-semibold bg-slate-200 border-b-2 border-gray-100">
+            <header className="w-full h-12 px-3 flex items-center justify-between font-semibold bg-gray-200 border-b-2 border-gray-100">
                 Settings
                 <button className="w-8 aspect-square grid place-items-center rounded-md hover:bg-gray-50 text-center text-xl"
                     onClick={handleTurnOffPopup}

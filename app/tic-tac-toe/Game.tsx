@@ -67,7 +67,7 @@ function Cell({
             className="grid place-items-center"
         >
             <button 
-                className={"w-full h-full border-2 text-4xl " + (isWinCell && "bg-green-200 ")}
+                className={"w-full h-full border-2 text-4xl " + (isWinCell ? "bg-green-300 " : " hover:bg-gray-100")}
                 onClick={() => {
                     if (isActive) return;
 

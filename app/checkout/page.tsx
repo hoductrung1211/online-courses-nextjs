@@ -60,6 +60,7 @@ export default function Page() {
                 handleDeleteACourse={handleDeleteACourse}
             />
             <Checkout 
+                key={subtotal}
                 subtotal={subtotal}
                 handleCheckout={handleCheckout}    
             />

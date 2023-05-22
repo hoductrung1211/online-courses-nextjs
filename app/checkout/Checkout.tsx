@@ -18,11 +18,13 @@ export default function Checkout({
         bsmartCoint: '0', 
     })
     const bspoint = 200_000;
-    const options = [
-        {value: "false", text: 'Do not use Bsmart'},
+    const options = subtotal !== 0 ? [
         {value: "true", text: 'Use Bsmart'},
-    ];
-    const [isCoinUsed, setIsCoinUsed] = useState(options[0].value);
+        {value: "false", text: 'Do not use Bsmart'},
+    ] : [
+        {value: "false", text: 'Do not use Bsmart'},
+    ]
+    const [isCoinUsed, setIsCoinUsed] = useState(subtotal !== 0 ? options[0].value : "false");
     const discount = (vouchers.bsmartCoint === '' ? 0 : parseInt(vouchers.bsmartCoint));
 
     function handleChangeValue(name: string, value: string) {
@@ -194,7 +196,7 @@ function Voucher({
                         }}
                     />
                     <select 
-                        className='bg-f4 rounded px-2'
+                        className='bg-f4 rounded sm:px-2'
                         onChange={handleSelectChanged}
                     >
                         {options.map(option => (
@@ -267,8 +269,8 @@ function PaymentMethod({
             </div>
 
             <button 
-                className='mt-8 mb-2 h-10 rounded-lg bg-blue-400 font-bold text-white'
-                onClick={() => handleCheckout(selectedMethodId, total)}
+                className={'mt-8 mb-2 h-10 rounded-lg font-bold text-white ' + (total !== 0 ? 'bg-blue-400 ' : ' bg-gray-300')}
+                onClick={() => total && handleCheckout(selectedMethodId, total)}
             >
                 Confirm
             </button>
